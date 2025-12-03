@@ -42,4 +42,10 @@ class StaffController extends Controller
 
         return redirect()->route('staff.index');
     }
+
+    public function edit($id)
+    {
+        $staff = Staffs::findOrFail($id);
+        return view('staffs.edit', compact('staff'));
+    }
 }

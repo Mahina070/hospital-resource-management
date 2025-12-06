@@ -22,7 +22,7 @@ return new class extends Migration
 
             $table->string('role');
 
-            $table->string('department');
+            $table->string('department')->nullable();
 
             $table->string('contact_no');
 

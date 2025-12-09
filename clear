@@ -1,0 +1,35 @@
+[33mcommit 72c4b8b993f97a79cc0a266a3eea0c2245059792[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: Mahina070 <mahina.momo@gmail.com>
+Date:   Wed Dec 10 00:43:42 2025 +0600
+
+    Created view, delete and edit options, removed auto generation of staff id, fixed naming conventions errors
+
+[33mcommit 33705ec7870e2baf3d7c4be0990380f052182c0b[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: Mahina070 <mahina.momo@gmail.com>
+Date:   Sat Dec 6 23:11:07 2025 +0600
+
+    Edit and delete partially done
+
+[33mcommit ce8df7a7de5518af651d689e78db4ff7ce455c11[m
+Author: Mahina070 <mahina.momo@gmail.com>
+Date:   Sat Dec 6 10:50:56 2025 +0600
+
+    Slight change - department nullable
+
+[33mcommit 92c3ae66d8abe4caeeb4c96d0a480d5860856907[m
+Author: Mahina070 <mahina.momo@gmail.com>
+Date:   Wed Dec 3 18:51:20 2025 +0600
+
+    Created a dashboard, manage stuff view and edit view
+
+[33mcommit f58aa87f3c82485c60d83d6a3ad37a9402ce742b[m
+Author: Mahina070 <mahina.momo@gmail.com>
+Date:   Sat Nov 22 15:45:39 2025 +0600
+
+    User Authentication program is done
+
+[33mcommit a930e5e1b38a117d33c6b354bdbc2ecd27d3bbaa[m
+Author: Mahina070 <mahina.momo@gmail.com>
+Date:   Sat Nov 22 13:04:46 2025 +0600
+
+    Set up git

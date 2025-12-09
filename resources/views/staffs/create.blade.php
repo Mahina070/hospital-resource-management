@@ -35,16 +35,32 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
+                            <label for="staff_id" class="form-label">Staff ID <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="staff_id" name="staff_id" value="{{ old('staff_id') }}" required>
+                            @error('staff_id')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
                             <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                             <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required>
                             @error('email')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="role" name="role" value="{{ old('role') }}" required>
                             @error('role')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            <input type="text" class="form-control" id="department" name="department" value="{{ old('department') }}">
+                            @error('department')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
@@ -73,14 +89,7 @@
                         @enderror
                     </div>
                     <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="department" class="form-label">Department</label>
-                            <input type="text" class="form-control" id="department" name="department" value="{{ old('department') }}">
-                            @error('department')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="status" class="form-label">Status</label>
                             <select id="status" name="status" class="form-select">
                                 <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>

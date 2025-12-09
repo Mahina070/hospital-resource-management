@@ -3,21 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Staffs;
+use App\Models\Staff;
 
 class StaffController extends Controller
 {
     public function index()
     {
-        $staffs = Staffs::orderBy('id', 'desc')->get();
+        $staffs = Staff::orderBy('staff_id', 'asc')->get();
 
         return view('staffs.index', compact('staffs'));
     }
 
     public function create()
     {
-        $nextStaffId = Staffs::generateStaffId();
-        return view('staffs.create', compact('nextStaffId'));
+        return view('staffs.create');
     }
 
     public function show($staff_id)
@@ -28,16 +27,17 @@ class StaffController extends Controller
 
     public function store(Request $request)
     {
-        $staff = new Staffs();
+        $staff = new Staff();
         $staff->first_name = $request->input('first_name');
         $staff->last_name = $request->input('last_name');
-        $staff->staff_id = Staffs::generateStaffId();
+        $staff->staff_id = $request->input('staff_id');
         $staff->email = $request->input('email');
         $staff->role = $request->input('role');
         $staff->department = $request->input('department');
         $staff->contact_no = $request->input('contact_no');
         $staff->address = $request->input('address');
         $staff->emergency_contact = $request->input('emergency_contact');
+        $staff->status = $request->input('status', 'active');
         $staff->save();
 
         return redirect()->route('staff.index');
@@ -46,7 +46,7 @@ class StaffController extends Controller
     public function edit($staff_id)
     {
         $staff = Staff::find($staff_id);
-        return view('staff.edit', compact('staff'));
+        return view('staffs.edit', compact('staff'));
     }
 
     public function update(Request $request, $staff_id)

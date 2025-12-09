@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Student List</title>
+    <title>Staff List</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 </head>
@@ -42,7 +42,7 @@
                                     <td>{{ $staff->role }}</td>
                                     <td>{{ $staff->department }}</td>
                                     <td>
-                                        <span class="badge bg-{{ $staff->status == 'Active' ? 'success' : 'secondary' }}">
+                                        <span class="badge bg-{{ $staff->status == 'active' ? 'success' : 'secondary' }}">
                                             {{ $staff->status }}
                                         </span>
                                     </td>
@@ -53,7 +53,7 @@
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="actionDropdown{{ $staff->id }}">
                                                 <li>
-                                                    <button type="button" class="dropdown-item view-student-btn" data-student-id="{{ $staff->id }}">
+                                                    <button type="button" class="dropdown-item view-staff-btn" data-staff-id="{{ $staff->id }}">
                                                         <i class="bi bi-eye"></i> View
                                                     </button>
                                                 </li>
@@ -109,7 +109,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="viewModalLabel">
-                        <i class="bi bi-person-circle"></i> Student Details
+                        <i class="bi bi-person-circle"></i> Staff Details
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -125,7 +125,7 @@
                     <button type="button" id="toggleEditBtn" class="btn btn-warning">
                         <i class="bi bi-pencil-square"></i> Edit
                     </button>
-                    <button type="button" id="saveStudentBtn" class="btn btn-success d-none">
+                    <button type="button" id="saveStaffBtn" class="btn btn-success d-none">
                         <i class="bi bi-check-circle"></i> Save Changes
                     </button>
                     <button type="button" id="cancelEditBtn" class="btn btn-secondary d-none">
@@ -142,19 +142,19 @@
             const viewModal = new bootstrap.Modal(document.getElementById('viewModal'));
             const modalContent = document.getElementById('modalContent');
             const toggleEditBtn = document.getElementById('toggleEditBtn');
-            const saveStudentBtn = document.getElementById('saveStudentBtn');
+            const saveStaffBtn = document.getElementById('saveStaffBtn');
             const cancelEditBtn = document.getElementById('cancelEditBtn');
             
-            let currentStudent = null;
+            let currentStaff = null;
             let isEditMode = false;
             let originalContent = '';
 
-            document.querySelectorAll('.view-student-btn').forEach(button => {
+            document.querySelectorAll('.view-staff-btn').forEach(button => {
                 button.addEventListener('click', function() {
-                    const studentId = this.getAttribute('data-student-id');
+                    const staffId = this.getAttribute('data-staff-id');
                     isEditMode = false;
                     toggleEditBtn.classList.remove('d-none');
-                    saveStudentBtn.classList.add('d-none');
+                    saveStaffBtn.classList.add('d-none');
                     cancelEditBtn.classList.add('d-none');
                     
                     // Show loading spinner
@@ -169,17 +169,17 @@
                     // Show modal
                     viewModal.show();
                     
-                    // Fetch student data
-                    fetch(`/student/show/${studentId}`)
+                    // Fetch staff data
+                    fetch(`/staff/show/${staffId}`)
                         .then(response => response.json())
-                        .then(student => {
-                            currentStudent = student;
-                            renderViewMode(student);
+                        .then(staff => {
+                            currentStaff = staff;
+                            renderViewMode(staff);
                         })
                         .catch(error => {
                             modalContent.innerHTML = `
                                 <div class="alert alert-danger" role="alert">
-                                    <i class="bi bi-exclamation-triangle"></i> Error loading student details. Please try again.
+                                    <i class="bi bi-exclamation-triangle"></i> Error loading staff details. Please try again.
                                 </div>
                             `;
                             console.error('Error:', error);
@@ -187,81 +187,64 @@
                 });
             });
 
-            function renderViewMode(student) {
-                // Format date
-                let formattedDate = 'N/A';
-                if (student.date_of_birth) {
-                    const date = new Date(student.date_of_birth);
-                    formattedDate = date.toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    });
-                }
-                
+            function renderViewMode(staff) {
                 // Determine status badge color
                 let statusColor = 'secondary';
-                if (student.status === 'Active') statusColor = 'success';
-                else if (student.status === 'Graduated') statusColor = 'info';
+                if (staff.status === 'active') statusColor = 'success';
+                else if (staff.status === 'inactive') statusColor = 'secondary';
                 
                 // Update modal content
                 modalContent.innerHTML = `
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <strong><i class="bi bi-person"></i> First Name:</strong>
-                            <p class="ms-4">${student.first_name}</p>
+                            <p class="ms-4">${staff.first_name}</p>
                         </div>
                         <div class="col-md-6 mb-3">
                             <strong><i class="bi bi-person"></i> Last Name:</strong>
-                            <p class="ms-4">${student.last_name}</p>
+                            <p class="ms-4">${staff.last_name}</p>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <strong><i class="bi bi-card-text"></i> Student ID:</strong>
-                            <p class="ms-4">${student.student_id}</p>
+                            <strong><i class="bi bi-card-text"></i> Staff ID:</strong>
+                            <p class="ms-4">${staff.staff_id}</p>
                         </div>
                         <div class="col-md-6 mb-3">
                             <strong><i class="bi bi-envelope"></i> Email:</strong>
-                            <p class="ms-4">${student.email}</p>
+                            <p class="ms-4">${staff.email}</p>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <strong><i class="bi bi-telephone"></i> Contact Number:</strong>
-                            <p class="ms-4">${student.contact_no || 'N/A'}</p>
+                            <p class="ms-4">${staff.contact_no || 'N/A'}</p>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <strong><i class="bi bi-calendar"></i> Date of Birth:</strong>
-                            <p class="ms-4">${formattedDate}</p>
+                            <strong><i class="bi bi-briefcase"></i> Role:</strong>
+                            <p class="ms-4">${staff.role || 'N/A'}</p>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <strong><i class="bi bi-geo-alt"></i> Address:</strong>
-                            <p class="ms-4">${student.address || 'N/A'}</p>
+                            <p class="ms-4">${staff.address || 'N/A'}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong><i class="bi bi-phone"></i> Emergency Contact:</strong>
+                            <p class="ms-4">${staff.emergency_contact || 'N/A'}</p>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <strong><i class="bi bi-building"></i> Department:</strong>
-                            <p class="ms-4">${student.department || 'N/A'}</p>
+                            <p class="ms-4">${staff.department || 'N/A'}</p>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <strong><i class="bi bi-calendar-event"></i> Enrollment Year:</strong>
-                            <p class="ms-4">${student.enrollment_year || 'N/A'}</p>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <strong><i class="bi bi-trophy"></i> CGPA:</strong>
-                            <p class="ms-4">${student.cgpa || 'N/A'}</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <strong><i class="bi bi-info-circle"></i> Status:</strong>
                             <p class="ms-4">
                                 <span class="badge bg-${statusColor}">
-                                    ${student.status}
+                                    ${staff.status}
                                 </span>
                             </p>
                         </div>
@@ -270,65 +253,58 @@
                 originalContent = modalContent.innerHTML;
             }
 
-            function renderEditMode(student) {
+            function renderEditMode(staff) {
                 modalContent.innerHTML = `
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label"><i class="bi bi-person"></i> First Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="edit_first_name" value="${student.first_name}" required>
+                            <input type="text" class="form-control" id="edit_first_name" value="${staff.first_name}" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label"><i class="bi bi-person"></i> Last Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="edit_last_name" value="${student.last_name}" required>
+                            <input type="text" class="form-control" id="edit_last_name" value="${staff.last_name}" required>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label"><i class="bi bi-card-text"></i> Student ID <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="edit_student_id" value="${student.student_id}" required>
+                            <label class="form-label"><i class="bi bi-card-text"></i> Staff ID <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="edit_staff_id" value="${staff.staff_id}" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label"><i class="bi bi-envelope"></i> Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="edit_email" value="${student.email}" required>
+                            <input type="email" class="form-control" id="edit_email" value="${staff.email}" required>
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="bi bi-briefcase"></i> Role <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="edit_role" value="${staff.role || ''}" required>
+                        </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label"><i class="bi bi-telephone"></i> Contact Number</label>
-                            <input type="text" class="form-control" id="edit_contact_no" value="${student.contact_no || ''}">
+                            <input type="text" class="form-control" id="edit_contact_no" value="${staff.contact_no || ''}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="bi bi-geo-alt"></i> Address</label>
+                            <input type="text" class="form-control" id="edit_address" value="${staff.address || ''}">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label"><i class="bi bi-calendar"></i> Date of Birth</label>
-                            <input type="date" class="form-control" id="edit_date_of_birth" value="${student.date_of_birth || ''}">
+                            <label class="form-label"><i class="bi bi-phone"></i> Emergency Contact</label>
+                            <input type="text" class="form-control" id="edit_emergency_contact" value="${staff.emergency_contact || ''}">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-12 mb-3">
-                            <label class="form-label"><i class="bi bi-geo-alt"></i> Address</label>
-                            <input type="text" class="form-control" id="edit_address" value="${student.address || ''}">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label"><i class="bi bi-building"></i> Department</label>
-                            <input type="text" class="form-control" id="edit_department" value="${student.department || ''}">
+                            <input type="text" class="form-control" id="edit_department" value="${staff.department || ''}">
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label"><i class="bi bi-calendar-event"></i> Enrollment Year</label>
-                            <input type="number" class="form-control" id="edit_enrollment_year" value="${student.enrollment_year || ''}">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label"><i class="bi bi-trophy"></i> CGPA</label>
-                            <input type="number" step="0.01" class="form-control" id="edit_cgpa" value="${student.cgpa || ''}">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label"><i class="bi bi-info-circle"></i> Status</label>
                             <select class="form-select" id="edit_status">
-                                <option value="Active" ${student.status === 'Active' ? 'selected' : ''}>Active</option>
-                                <option value="Inactive" ${student.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
-                                <option value="Graduated" ${student.status === 'Graduated' ? 'selected' : ''}>Graduated</option>
+                                <option value="active" ${staff.status === 'active' ? 'selected' : ''}>Active</option>
+                                <option value="inactive" ${staff.status === 'inactive' ? 'selected' : ''}>Inactive</option>
                             </select>
                         </div>
                     </div>
@@ -337,9 +313,9 @@
 
             toggleEditBtn.addEventListener('click', function() {
                 isEditMode = true;
-                renderEditMode(currentStudent);
+                renderEditMode(currentStaff);
                 toggleEditBtn.classList.add('d-none');
-                saveStudentBtn.classList.remove('d-none');
+                saveStaffBtn.classList.remove('d-none');
                 cancelEditBtn.classList.remove('d-none');
             });
 
@@ -347,31 +323,30 @@
                 isEditMode = false;
                 modalContent.innerHTML = originalContent;
                 toggleEditBtn.classList.remove('d-none');
-                saveStudentBtn.classList.add('d-none');
+                saveStaffBtn.classList.add('d-none');
                 cancelEditBtn.classList.add('d-none');
             });
 
-            saveStudentBtn.addEventListener('click', function() {
+            saveStaffBtn.addEventListener('click', function() {
                 const updatedData = {
                     first_name: document.getElementById('edit_first_name').value,
                     last_name: document.getElementById('edit_last_name').value,
-                    student_id: document.getElementById('edit_student_id').value,
+                    staff_id: document.getElementById('edit_staff_id').value,
                     email: document.getElementById('edit_email').value,
+                    role: document.getElementById('edit_role').value,
                     contact_no: document.getElementById('edit_contact_no').value,
-                    date_of_birth: document.getElementById('edit_date_of_birth').value,
                     address: document.getElementById('edit_address').value,
+                    emergency_contact: document.getElementById('edit_emergency_contact').value,
                     department: document.getElementById('edit_department').value,
-                    enrollment_year: document.getElementById('edit_enrollment_year').value,
-                    cgpa: document.getElementById('edit_cgpa').value,
                     status: document.getElementById('edit_status').value
                 };
 
                 // Show loading
-                saveStudentBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Saving...';
-                saveStudentBtn.disabled = true;
+                saveStaffBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Saving...';
+                saveStaffBtn.disabled = true;
 
                 // Send update request
-                fetch(`/student/update/${currentStudent.id}`, {
+                fetch(`/staff/update/${currentStaff.id}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -388,32 +363,34 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        // Update currentStudent with new data
-                        currentStudent = {...currentStudent, ...updatedData};
+                        // Update currentStaff with new data
+                        currentStaff = {...currentStaff, ...updatedData};
                         
                         // Switch back to view mode
-                        renderViewMode(currentStudent);
+                        renderViewMode(currentStaff);
                         isEditMode = false;
                         toggleEditBtn.classList.remove('d-none');
-                        saveStudentBtn.classList.add('d-none');
+                        saveStaffBtn.classList.add('d-none');
                         cancelEditBtn.classList.add('d-none');
                         
                         // Update table row
-                        const row = document.querySelector(`button[data-student-id="${currentStudent.id}"]`).closest('tr');
+                        const row = document.querySelector(`button[data-staff-id="${currentStaff.id}"]`).closest('tr');
                         row.querySelector('td:nth-child(2)').textContent = updatedData.first_name;
                         row.querySelector('td:nth-child(3)').textContent = updatedData.last_name;
-                        row.querySelector('td:nth-child(4)').textContent = updatedData.student_id;
+                        row.querySelector('td:nth-child(4)').textContent = updatedData.staff_id;
                         row.querySelector('td:nth-child(5)').textContent = updatedData.email;
+                        row.querySelector('td:nth-child(6)').textContent = updatedData.role;
+                        row.querySelector('td:nth-child(7)').textContent = updatedData.department;
                         
                         // Update status badge
-                        let statusColor = updatedData.status === 'Active' ? 'success' : (updatedData.status === 'Graduated' ? 'info' : 'secondary');
-                        row.querySelector('td:nth-child(6)').innerHTML = `<span class="badge bg-${statusColor}">${updatedData.status}</span>`;
+                        let statusColor = updatedData.status === 'active' ? 'success' : 'secondary';
+                        row.querySelector('td:nth-child(8)').innerHTML = `<span class="badge bg-${statusColor}">${updatedData.status}</span>`;
                         
                         // Show success message
                         const successAlert = document.createElement('div');
                         successAlert.className = 'alert alert-success alert-dismissible fade show';
                         successAlert.innerHTML = `
-                            <i class="bi bi-check-circle"></i> Student updated successfully!
+                            <i class="bi bi-check-circle"></i> Staff updated successfully!
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         `;
                         modalContent.insertBefore(successAlert, modalContent.firstChild);
@@ -427,15 +404,15 @@
                     const errorAlert = document.createElement('div');
                     errorAlert.className = 'alert alert-danger alert-dismissible fade show';
                     errorAlert.innerHTML = `
-                        <i class="bi bi-exclamation-triangle"></i> Error updating student. Please try again.
+                        <i class="bi bi-exclamation-triangle"></i> Error updating staff. Please try again.
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     `;
                     modalContent.insertBefore(errorAlert, modalContent.firstChild);
                     console.error('Error:', error);
                 })
                 .finally(() => {
-                    saveStudentBtn.innerHTML = '<i class="bi bi-check-circle"></i> Save Changes';
-                    saveStudentBtn.disabled = false;
+                    saveStaffBtn.innerHTML = '<i class="bi bi-check-circle"></i> Save Changes';
+                    saveStaffBtn.disabled = false;
                 });
             });
         });

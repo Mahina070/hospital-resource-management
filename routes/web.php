@@ -25,3 +25,10 @@ Route::get('resource/show/{id}', [ResourceController::class, 'show'])->name('res
 Route::get('resource/edit/{id}', [ResourceController::class, 'edit'])->name('resource.edit');
 Route::post('resource/update/{id}', [ResourceController::class, 'update'])->name('resource.update');
 Route::delete('resource/delete/{id}', [ResourceController::class, 'delete'])->name('resource.delete');
+
+// Search and Filter route for resources
+Route::get('resource/search', [ResourceController::class, 'searchFilter'])->name('resource.search');
+
+// Display available resources in asscending order and descending order
+Route::get('resource/available/asc', [ResourceController::class, 'availableAscending'])->name('resource.available.asc');
+Route::get('resource/available/desc', [ResourceController::class, 'availableDescending'])->name('resource.available.desc');

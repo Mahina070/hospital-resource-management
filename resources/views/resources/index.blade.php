@@ -14,6 +14,36 @@
             <h2>Resource List</h2>
             <a href="{{ route('resource.create') }}" class="btn btn-primary">Add New Resource</a>
         </div>
+
+        <!-- Search and Filter Section -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <form action="{{ route('resource.search') }}" method="GET" class="row g-3">
+                    <div class="col-md-10">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" name="search" placeholder="Search by resource name, type, or ID..." value="{{ $searchTerm ?? '' }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+                @if(isset($searchTerm) && $searchTerm)
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Showing results for: <strong>{{ $searchTerm }}</strong>
+                            <a href="{{ route('resource.index') }}" class="ms-2 text-decoration-none">
+                                <i class="bi bi-x-circle"></i> Clear search
+                            </a>
+                        </small>
+                    </div>
+                @endif
+            </div>
+        </div>
+
         <div class="card shadow-sm">
             <div class="card-body">
                 <div class="table-responsive">
@@ -25,7 +55,17 @@
                                 <th scope="col">Name</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Total Quantity</th>
-                                <th scope="col">Available</th>
+                                <th scope="col">
+                                    Available 
+                                    <div class="btn-group btn-group-sm ms-2" role="group">
+                                        <a href="{{ route('resource.available.asc') }}" class="btn btn-outline-light btn-sm" title="Sort Ascending">
+                                            <i class="bi bi-sort-up"></i>
+                                        </a>
+                                        <a href="{{ route('resource.available.desc') }}" class="btn btn-outline-light btn-sm" title="Sort Descending">
+                                            <i class="bi bi-sort-down"></i>
+                                        </a>
+                                    </div>
+                                </th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
@@ -87,7 +127,18 @@
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                        @if(isset($searchTerm) && $searchTerm)
+                                            No resources found for "{{ $searchTerm }}"
+                                        @else
+                                            No resources available
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

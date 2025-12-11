@@ -9,7 +9,7 @@ class ResourceController extends Controller
 {
     public function index()
     {
-        $resources = Resource::orderBy('name', 'asc')->get();
+        $resources = Resource::orderBy('resource_id', 'asc')->get();
         return view('resources.index', compact('resources'));
     }
 
@@ -75,5 +75,37 @@ class ResourceController extends Controller
         $resource->delete();
 
         return redirect()->route('resource.index');
+    }
+
+    // Search and Filter functionality
+    public function searchFilter(Request $request)
+    {
+        $searchTerm = $request->input('search');
+        
+        if ($searchTerm) {
+            $resources = Resource::where('name', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('type', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('resource_id', 'LIKE', '%' . $searchTerm . '%')
+                ->orderBy('name', 'asc')
+                ->get();
+        } else {
+            $resources = Resource::orderBy('name', 'asc')->get();
+        }
+        
+        return view('resources.index', compact('resources', 'searchTerm'));
+    }
+
+    // Display available resources in ascending order
+    public function availableAscending()
+    {
+        $resources = Resource::orderBy('quantity_available', 'asc')->get();
+        return view('resources.index', compact('resources'));
+    }
+
+    // Display available resources in descending order
+    public function availableDescending()
+    {
+        $resources = Resource::orderBy('quantity_available', 'desc')->get();
+        return view('resources.index', compact('resources'));
     }
 }

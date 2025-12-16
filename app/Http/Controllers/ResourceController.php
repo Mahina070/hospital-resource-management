@@ -31,7 +31,7 @@ class ResourceController extends Controller
         $resource->name = $request->input('name');
         $resource->type = $request->input('type');
         $resource->quantity_total = $request->input('quantity_total');
-        $resource->quantity_available = $request->input('quantity_available');
+        $resource->quantity_available = $request->input('quantity_total'); // Auto-set to total
         $resource->save();
 
         return redirect()->route('resource.index');
@@ -53,7 +53,7 @@ class ResourceController extends Controller
             $resource->name = $request->input('name');
             $resource->type = $request->input('type');
             $resource->quantity_total = $request->input('quantity_total');
-            $resource->quantity_available = $request->input('quantity_available');
+            // Keep existing quantity_available (managed by allocation process)
             $resource->save();
             
             return response()->json(['success' => true, 'message' => 'Resource updated successfully']);
@@ -64,7 +64,7 @@ class ResourceController extends Controller
         $resource->name = $request->input('name');
         $resource->type = $request->input('type');
         $resource->quantity_total = $request->input('quantity_total');
-        $resource->quantity_available = $request->input('quantity_available');
+        // Keep existing quantity_available (managed by allocation process)
         $resource->save();
         return redirect()->route('resource.index');
     }
@@ -107,5 +107,19 @@ class ResourceController extends Controller
     {
         $resources = Resource::orderBy('quantity_available', 'desc')->get();
         return view('resources.index', compact('resources'));
+    }
+
+    // Staffs can book resources
+    public function bookResource(Request $request, $name)
+    {
+        $resource = Resource::find($name);
+        $quantityToBook = $request->input('quantity');
+        if ($resource && $quantityToBook > 0 && $resource->quantity_available >= $quantityToBook) {
+            $resource->quantity_available -= $quantityToBook;
+            $resource->save();
+            return response()->json(['success' => true, 'message' => 'Resource booked successfully']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Insufficient available quantity or invalid request'], 400);
+        }
     }
 }

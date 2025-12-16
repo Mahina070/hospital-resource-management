@@ -49,15 +49,6 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="quantity_available" class="form-label">Available Quantity <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="quantity_available" name="quantity_available" value="{{ old('quantity_available') }}" required>
-                            @error('quantity_available')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
                     <div class="d-flex justify-content-end gap-2 mt-4">
                         <a href="{{ route('resource.index') }}" class="btn btn-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary">Submit</button>

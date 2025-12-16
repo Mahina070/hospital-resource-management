@@ -32,3 +32,9 @@ Route::get('resource/search', [ResourceController::class, 'searchFilter'])->name
 // Display available resources in asscending order and descending order
 Route::get('resource/available/asc', [ResourceController::class, 'availableAscending'])->name('resource.available.asc');
 Route::get('resource/available/desc', [ResourceController::class, 'availableDescending'])->name('resource.available.desc');
+
+// Resource booking page and action
+Route::get('resource/book', function() {
+    return view('resources.book');
+})->name('resource.book.page');
+Route::post('resource/book/{id}', [ResourceController::class, 'bookResource'])->name('resource.book');

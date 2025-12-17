@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Resource;
+use App\Models\Booking;
 
 class ResourceController extends Controller
 {
@@ -109,17 +110,139 @@ class ResourceController extends Controller
         return view('resources.index', compact('resources'));
     }
 
-    // Staffs can book resources
-    public function bookResource(Request $request, $name)
+    // Staff can submit booking requests
+    public function bookResource(Request $request, $id)
     {
-        $resource = Resource::find($name);
-        $quantityToBook = $request->input('quantity');
-        if ($resource && $quantityToBook > 0 && $resource->quantity_available >= $quantityToBook) {
-            $resource->quantity_available -= $quantityToBook;
-            $resource->save();
-            return response()->json(['success' => true, 'message' => 'Resource booked successfully']);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Insufficient available quantity or invalid request'], 400);
+        $resource = Resource::find($id);
+        
+        if (!$resource) {
+            return response()->json(['success' => false, 'message' => 'Resource not found'], 404);
         }
+        
+        $quantityRequested = $request->input('quantity');
+        $requestedBy = $request->input('requested_by', 'Unknown Staff');
+        $requestedPosition = $request->input('requested_position', 'Staff');
+        $department = $request->input('department', '');
+        $reason = $request->input('reason', '');
+        
+        if (!$quantityRequested || $quantityRequested <= 0) {
+            return response()->json(['success' => false, 'message' => 'Invalid quantity'], 400);
+        }
+        
+        if ($resource->quantity_available < $quantityRequested) {
+            return response()->json(['success' => false, 'message' => 'Requested quantity exceeds available resources'], 400);
+        }
+        
+        // Create a booking request (pending approval)
+        $booking = Booking::create([
+            'resource_id' => $resource->id,
+            'resource_name' => $resource->name,
+            'resource_type' => $resource->type,
+            'quantity_requested' => $quantityRequested,
+            'requested_by' => $requestedBy,
+            'requested_position' => $requestedPosition,
+            'department' => $department,
+            'reason' => $reason,
+            'status' => 'pending',
+        ]);
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Booking request submitted successfully. Awaiting administrator approval.',
+            'booking_id' => $booking->id
+        ]);
+    }
+
+    // Admin can view all booking requests
+    public function approveBookings()
+    {
+        $pendingBookings = Booking::where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        $approvedBookings = Booking::where('status', 'approved')
+            ->orderBy('approved_at', 'desc')
+            ->limit(20)
+            ->get();
+            
+        $rejectedBookings = Booking::where('status', 'rejected')
+            ->orderBy('updated_at', 'desc')
+            ->limit(20)
+            ->get();
+            
+        return view('resources.approve', compact('pendingBookings', 'approvedBookings', 'rejectedBookings'));
+    }
+    
+    // Admin approves a booking request
+    public function approveBooking(Request $request, $id)
+    {
+        $booking = Booking::find($id);
+        
+        if (!$booking) {
+            return response()->json(['success' => false, 'message' => 'Booking not found'], 404);
+        }
+        
+        if ($booking->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Booking has already been processed'], 400);
+        }
+        
+        $resource = Resource::find($booking->resource_id);
+        
+        if (!$resource) {
+            return response()->json(['success' => false, 'message' => 'Resource not found'], 404);
+        }
+        
+        // Check if sufficient quantity is available
+        if ($resource->quantity_available < $booking->quantity_requested) {
+            return response()->json(['success' => false, 'message' => 'Insufficient available resources'], 400);
+        }
+        
+        // Deduct from available quantity
+        $resource->quantity_available -= $booking->quantity_requested;
+        $resource->save();
+        
+        // Update booking status
+        $booking->status = 'approved';
+        $booking->approved_at = now();
+        $booking->approved_by = $request->input('approved_by', 'Administrator');
+        $booking->save();
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Booking request approved successfully',
+            'new_available' => $resource->quantity_available
+        ]);
+    }
+    
+    // Admin rejects a booking request
+    public function rejectBooking(Request $request, $id)
+    {
+        $booking = Booking::find($id);
+        
+        if (!$booking) {
+            return response()->json(['success' => false, 'message' => 'Booking not found'], 404);
+        }
+        
+        if ($booking->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Booking has already been processed'], 400);
+        }
+        
+        // Update booking status
+        $booking->status = 'rejected';
+        $booking->approved_at = now();
+        $booking->approved_by = $request->input('approved_by', 'Administrator');
+        $booking->save();
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Booking request rejected'
+        ]);
+    }
+
+    // Generate report of all bookings
+    public function generateReport()
+    {
+        $bookings = Booking::orderBy('created_at', 'desc')->get();
+        return view('resources.report', compact('bookings'));
     }
 }

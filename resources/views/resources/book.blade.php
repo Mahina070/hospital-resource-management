@@ -342,9 +342,9 @@
                 <div>
                     <h1>
                         <i class="bi bi-calendar-check"></i>
-                        Book Resources
+                        Request Resources
                     </h1>
-                    <p>Select and book the resources you need for your department</p>
+                    <p>Submit a booking request for the resources you need - Administrator will review and approve</p>
                 </div>
                 <a href="{{ route('resource.index') }}" class="back-button">
                     <i class="bi bi-arrow-left"></i>
@@ -528,8 +528,43 @@
                 
                 <div class="booking-form">
                     <div class="quantity-input-group">
+                        <label for="staff_name_${resource.id}">
+                            <i class="bi bi-person"></i> Your Name <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="staff_name_${resource.id}" 
+                            ${!isAvailable ? 'disabled' : ''}
+                            placeholder="Enter your name"
+                            required
+                        >
+                    </div>
+                    <div class="quantity-input-group">
+                        <label for="staff_position_${resource.id}">
+                            <i class="bi bi-briefcase"></i> Position <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="staff_position_${resource.id}" 
+                            ${!isAvailable ? 'disabled' : ''}
+                            placeholder="e.g., Nurse, Doctor"
+                            required
+                        >
+                    </div>
+                    <div class="quantity-input-group">
+                        <label for="department_${resource.id}">
+                            <i class="bi bi-building"></i> Department
+                        </label>
+                        <input 
+                            type="text" 
+                            id="department_${resource.id}" 
+                            ${!isAvailable ? 'disabled' : ''}
+                            placeholder="Enter department"
+                        >
+                    </div>
+                    <div class="quantity-input-group">
                         <label for="quantity_${resource.id}">
-                            <i class="bi bi-123"></i> Quantity to Book
+                            <i class="bi bi-123"></i> Quantity Needed <span class="text-danger">*</span>
                         </label>
                         <input 
                             type="number" 
@@ -539,15 +574,28 @@
                             value="1"
                             ${!isAvailable ? 'disabled' : ''}
                             placeholder="Enter quantity"
+                            required
                         >
+                    </div>
+                    <div class="quantity-input-group">
+                        <label for="reason_${resource.id}">
+                            <i class="bi bi-chat-left-text"></i> Reason for Request
+                        </label>
+                        <textarea 
+                            id="reason_${resource.id}" 
+                            rows="3"
+                            ${!isAvailable ? 'disabled' : ''}
+                            placeholder="Briefly explain why you need this resource"
+                            style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; resize: vertical;"
+                        ></textarea>
                     </div>
                     <button 
                         class="btn btn-book ${isAvailable ? 'btn-primary' : 'btn-secondary'}" 
-                        onclick="bookResource(${resource.id}, '${resource.name}')"
+                        onclick="submitBookingRequest(${resource.id}, '${resource.name}')"
                         ${!isAvailable ? 'disabled' : ''}
                     >
-                        <i class="bi bi-cart-plus"></i>
-                        ${isAvailable ? 'Book Now' : 'Unavailable'}
+                        <i class="bi bi-send"></i>
+                        ${isAvailable ? 'Submit Request' : 'Unavailable'}
                     </button>
                 </div>
             `;
@@ -555,12 +603,35 @@
             return card;
         }
 
-        function bookResource(resourceId, resourceName) {
+        function submitBookingRequest(resourceId, resourceName) {
             const quantityInput = document.getElementById(`quantity_${resourceId}`);
+            const staffNameInput = document.getElementById(`staff_name_${resourceId}`);
+            const staffPositionInput = document.getElementById(`staff_position_${resourceId}`);
+            const departmentInput = document.getElementById(`department_${resourceId}`);
+            const reasonInput = document.getElementById(`reason_${resourceId}`);
+            
             const quantity = parseInt(quantityInput.value);
+            const staffName = staffNameInput.value.trim();
+            const staffPosition = staffPositionInput.value.trim();
+            const department = departmentInput.value.trim();
+            const reason = reasonInput.value.trim();
+            
+            // Validation
+            if (!staffName) {
+                showAlert('Please enter your name.', 'warning');
+                staffNameInput.focus();
+                return;
+            }
+            
+            if (!staffPosition) {
+                showAlert('Please enter your position.', 'warning');
+                staffPositionInput.focus();
+                return;
+            }
             
             if (!quantity || quantity <= 0) {
                 showAlert('Please enter a valid quantity.', 'warning');
+                quantityInput.focus();
                 return;
             }
             
@@ -576,24 +647,30 @@
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    quantity: quantity
+                    quantity: quantity,
+                    requested_by: staffName,
+                    requested_position: staffPosition,
+                    department: department,
+                    reason: reason
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showAlert(`Successfully booked ${quantity} unit(s) of ${resourceName}!`, 'success');
-                    // Refresh the resources after booking
-                    setTimeout(() => {
-                        fetchResourcesFromAPI();
-                    }, 1500);
+                    showAlert(`Request submitted successfully! Your request for ${quantity} unit(s) of ${resourceName} is pending administrator approval.`, 'success');
+                    // Clear the form
+                    staffNameInput.value = '';
+                    staffPositionInput.value = '';
+                    departmentInput.value = '';
+                    quantityInput.value = '1';
+                    reasonInput.value = '';
                 } else {
-                    showAlert(data.message || 'Booking failed. Please try again.', 'danger');
+                    showAlert(data.message || 'Request submission failed. Please try again.', 'danger');
                 }
             })
             .catch(error => {
-                console.error('Error booking resource:', error);
-                showAlert('An error occurred while booking. Please try again.', 'danger');
+                console.error('Error submitting request:', error);
+                showAlert('An error occurred while submitting your request. Please try again.', 'danger');
             });
         }
 

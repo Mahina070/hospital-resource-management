@@ -33,8 +33,16 @@ Route::get('resource/search', [ResourceController::class, 'searchFilter'])->name
 Route::get('resource/available/asc', [ResourceController::class, 'availableAscending'])->name('resource.available.asc');
 Route::get('resource/available/desc', [ResourceController::class, 'availableDescending'])->name('resource.available.desc');
 
-// Resource booking page and action
+// Resource booking request page and action
 Route::get('resource/book', function() {
     return view('resources.book');
 })->name('resource.book.page');
 Route::post('resource/book/{id}', [ResourceController::class, 'bookResource'])->name('resource.book');
+
+// Resource booking approval page and action
+Route::get('resource/approve', [ResourceController::class, 'approveBookings'])->name('resource.approve.page');
+Route::post('resource/approve/{id}', [ResourceController::class, 'approveBooking'])->name('resource.approve');
+Route::post('resource/reject/{id}', [ResourceController::class, 'rejectBooking'])->name('resource.reject');
+
+// Report generation of resource bookings only administrators can access
+Route::get('resource/report', [ResourceController::class, 'generateReport'])->name('resource.report');

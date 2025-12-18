@@ -245,4 +245,21 @@ class ResourceController extends Controller
         $bookings = Booking::orderBy('created_at', 'desc')->get();
         return view('resources.report', compact('bookings'));
     }
+
+    // Dashboard view
+    public function dashboard()
+    {
+        $totalResources = Resource::count();
+        $totalBookings = Booking::count();
+        $pendingBookings = Booking::where('status', 'pending')->count();
+        
+        return view('welcomePage.dashboard', compact('totalResources', 'totalBookings', 'pendingBookings'));
+    }
+
+    // Resource shortage alerts
+    public function resourceAlerts()
+    {
+        $lowStockResources = Resource::where('quantity_available', '<', 10)->orderBy('quantity_available', 'asc')->get();
+        return view('resources.alerts', compact('lowStockResources'));
+    }
 }

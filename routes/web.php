@@ -46,3 +46,9 @@ Route::post('resource/reject/{id}', [ResourceController::class, 'rejectBooking']
 
 // Report generation of resource bookings only administrators can access
 Route::get('resource/report', [ResourceController::class, 'generateReport'])->name('resource.report');
+
+// Dashboard route (it wil use as welcome page)
+Route::get('dashboard', [ResourceController::class, 'dashboard'])->name('dashboard');
+
+// Alert route for shortage of resource (only administrators can access and it will be triggered when resource quantity_available is below then 10)        
+Route::get('resource/alerts', [ResourceController::class, 'resourceAlerts'])->name('resource.alerts');
